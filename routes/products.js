@@ -8,8 +8,25 @@ const admin = require('../middleware/admin');
 
 
 router.get('/', async (req, res) => {
-    const products = await Product.find().limit(4).sort('name');
-    if(!products) return res.status(400).send('No products found');
+    let products;
+    if (req.query.q) {
+        const searchTerm = req.query.q;
+        const regex = new RegExp(searchTerm, 'i');
+        products = await Product.find(
+            {
+                "name": regex,
+            },
+        ).limit(8).sort('name');
+
+    }
+
+    res.send(products);
+});
+
+
+router.get('/latest', async (req, res) => {
+
+    products = await Product.find().limit(4).sort('_id');
 
     res.send(products);
 });
@@ -17,14 +34,13 @@ router.get('/', async (req, res) => {
 router.get('/:productId', async (req, res) => {
     const product = await Product.findById(req.params.productId).sort('name');
 
-    if(!product) return res.status(400).send('Invalid product');
+    if (!product) return res.status(400).send('Invalid product');
 
     res.send(product);
 });
 
 
-router.post('/',[auth,admin], async (req, res) => {
-    console.log(req.body);
+router.post('/', [auth, admin], async (req, res) => {
     const {error} = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -47,7 +63,7 @@ router.post('/',[auth,admin], async (req, res) => {
     res.send(product);
 });
 
-router.put('/:id',[auth,admin], async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
     const {error} = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -72,7 +88,7 @@ router.put('/:id',[auth,admin], async (req, res) => {
     res.send(product);
 });
 
-router.delete('/:id',[auth,admin], async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     const product = await Product.findByIdAndRemove(req.params.id);
 
     if (!product) return res.status(404).send('The product with the given ID was not found.');
@@ -80,7 +96,7 @@ router.delete('/:id',[auth,admin], async (req, res) => {
     res.send(product);
 });
 
-router.get('/:id',[auth,admin], async (req, res) => {
+router.get('/:id', [auth, admin], async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) return res.status(404).send('The product with the given ID was not found.');
