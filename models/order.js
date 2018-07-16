@@ -22,13 +22,13 @@ const Order = mongoose.model('Order', new mongoose.Schema({
             name: {
                 type: String,
                 required: true,
-                minlength: 3,
+                minlength: 5,
                 maxlength: 50
             },
             phone: {
                 type: String,
                 required: true,
-                minlength: 3,
+                minlength: 6,
                 maxlength: 15
             },
             address: {
@@ -101,8 +101,8 @@ function validateOrder(order) {
         user: Joi.object().required(),
         products: Joi.array().required(),
         address: Joi.object().keys({
-                name: Joi.string().min(3).required(),
-                phone: Joi.string().min(3).max(15).required(),
+                name: Joi.string().min(5).max(40).required(),
+                phone: Joi.string().min(6).max(15).required(),
                 address: Joi.string().min(8).max(60).required(),
                 address2: Joi.string().allow(null).min(5).max(60),
                 country: Joi.string().min(3).max(30).required(),
